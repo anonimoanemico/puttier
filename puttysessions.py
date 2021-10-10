@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import winreg
 from theme import *
 
@@ -25,7 +26,7 @@ class PuttyLoader:
                     pass
 
     @staticmethod
-    def colors(session_name, reg = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)):
+    def sessionColors(session_name, reg = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)):
         keypath = PuttyLoader.getSessionKey(session_name)
         with winreg.OpenKey(reg, keypath, winreg.KEY_READ) as key:
             for i in range(22):
@@ -53,10 +54,14 @@ class PuttyLoader:
     def sessions():
         """return a generator of PuttySession"""
         for name in PuttyLoader.sessionNames():
-            session_colors = (PuttyLoader.colors(name))
+            session_colors = (PuttyLoader.sessionColors(name))
             theme = PuttyLoader.toTheme(session_colors)
             yield PuttySession(name, theme)
 
+    @staticmethod
+    def themeBySession(session_name):
+        session_colors = PuttyLoader.sessionColors(session_name)
+        return PuttyLoader.toTheme(session_colors)
 
 class PuttyUpdate:
     @staticmethod
@@ -66,7 +71,7 @@ class PuttyUpdate:
             for index,color in enumerate(theme.colors):
                 try:
                     colour_name = "{0}{1}".format("Colour",index)
-                    print(winreg.QueryValueEx(key, colour_name)[0])
+                    # print(winreg.QueryValueEx(key, colour_name)[0])
                     winreg.SetValueEx(key, colour_name, 0, winreg.REG_SZ, str(color.regFormat()))
                     winreg.FlushKey(key)
                 except EnvironmentError as err:
@@ -75,7 +80,7 @@ class PuttyUpdate:
 
 def main():
     print(list(PuttyLoader.sessionNames()))
-    session_colors = (PuttyLoader.colors("raspberrypi2"))
+    session_colors = (PuttyLoader.sessionColors("raspberrypi2"))
     theme = PuttyLoader.toTheme(session_colors)
     theme.describe()
 

@@ -1,5 +1,6 @@
 import sys
 import os
+# -*- coding: utf-8 -*-
 import glob
 from theme import *
 
