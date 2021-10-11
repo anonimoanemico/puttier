@@ -1,5 +1,6 @@
 # puttier
-Change colors to putty sessions
+Change colors to putty sessions.
+
 It is possible to use the command line tool, example:
 
 ```sh
