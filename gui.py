@@ -3,21 +3,23 @@ import tkinter.font as tkFont
 from puttier import *
 
 class App:
-    def __init__(self, root):
+
+    def __init__(self):
+        self.root = tk.Tk()
         self.themes_db = dict()
         self.sessions_db = dict()
         #setting title
-        root.title("Puttier")
+        self.root.title("Puttier")
         #setting window size
         width=800
         height=500
-        screenwidth = root.winfo_screenwidth()
-        screenheight = root.winfo_screenheight()
+        screenwidth = self.root.winfo_screenwidth()
+        screenheight = self.root.winfo_screenheight()
         alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
-        root.geometry(alignstr)
-        root.resizable(width=False, height=False)
+        self.root.geometry(alignstr)
+        self.root.resizable(width=False, height=False)
 
-        main_panel = tk.PanedWindow(root, orient=tk.VERTICAL)
+        main_panel = tk.PanedWindow(self.root, orient=tk.VERTICAL)
         main_panel.pack(side=tk.TOP, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
 
         top_panel = tk.PanedWindow(main_panel, orient=tk.HORIZONTAL)
@@ -50,8 +52,8 @@ class App:
         #self.theme_listbox["justify"] = "left"
         self.theme_listbox["selectmode"] = "single"
         self.theme_listbox.bind("<<ListboxSelect>>", self.onThemeSelect)
-        self.theme_listbox.bind("<Down>", self.OnEntryUpDown)
-        self.theme_listbox.bind("<Up>", self.OnEntryUpDown)
+        self.theme_listbox.bind("<Down>", self.onEntryUpDown)
+        self.theme_listbox.bind("<Up>", self.onEntryUpDown)
 
         self.theme_listbox.place(x=0,y=0,width=300,height=291)
         scrollbar_GListBox_1 = tk.Scrollbar(labelFrame1)
@@ -67,7 +69,7 @@ class App:
         ft = tkFont.Font(family='Consolas',size=8)
         self.text_area["font"] = ft
         self.text_area.pack()
-        self.text_area.insert(tk.INSERT, 
+        self.text_area.insert(tk.INSERT,
 """user@machine~> ls --color=auto -al
 total 1944
 drwxr-xr-x 13 user user    4096 Oct  9 22:36 .
@@ -88,44 +90,63 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         self.text_area.config(yscrollcommand = scrollbar_text_area.set, exportselection=False)
         scrollbar_text_area.pack(side = tk.RIGHT, fill = tk.BOTH)
         self.text_area.pack(side=tk.LEFT, expand=tk.Y, fill=tk.BOTH)
+        self.text_area.config(state=tk.DISABLED)
+
         pBottomTerminal.pack(side=tk.TOP, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
 
         pBottomButtons = tk.PanedWindow(pBottom, orient=tk.HORIZONTAL, height=15)
         pBottomButtons.pack(side=tk.TOP, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
-        GButton_687=tk.Button(pBottomButtons)
-        GButton_687["bg"] = "#efefef"
+        self.btn_load=tk.Button(pBottomButtons)
+        self.btn_load["bg"] = "#efefef"
         ft = tkFont.Font(family='Verdana',size=8)
-        GButton_687["font"] = ft
-        GButton_687["fg"] = "#000000"
-        # GButton_687["justify"] = "center"
-        GButton_687["text"] = "Load"
-        GButton_687.place(x=0,y=0,width=100,height=25)
-        GButton_687["command"] = self.GButton_687_command
+        self.btn_load["font"] = ft
+        self.btn_load["fg"] = "#000000"
+        # self.btn_load["justify"] = "center"
+        self.btn_load["text"] = "Load"
+        self.btn_load.place(x=0,y=0,width=100,height=25)
+        self.btn_load["command"] = self.btnLoadCommand
 
-        GButton_46=tk.Button(pBottomButtons)
-        GButton_46["bg"] = "#efefef"
+        btn_update=tk.Button(pBottomButtons)
+        btn_update["bg"] = "#efefef"
         ft = tkFont.Font(family='Verdana',size=8)
-        GButton_46["font"] = ft
-        GButton_46["fg"] = "#000000"
-        # GButton_46["justify"] = "center"
-        GButton_46["text"] = "Update"
-        GButton_46.place(x=110,y=0,width=120,height=25)
-        GButton_46["command"] = self.GButton_46_command
+        btn_update["font"] = ft
+        btn_update["fg"] = "#000000"
+        # btn_update["justify"] = "center"
+        btn_update["text"] = "Update"
+        btn_update.place(x=110,y=0,width=120,height=25)
+        btn_update["command"] = self.btnUpdateCommand
+
+        self.btn_download=tk.Button(pBottomButtons)
+        self.btn_download["bg"] = "#efefef"
+        ft = tkFont.Font(family='Verdana',size=8)
+        self.btn_download["font"] = ft
+        self.btn_download["fg"] = "#000000"
+        # self.btn_download["justify"] = "center"
+        self.btn_download["text"] = "Download Themes"
+        self.btn_download.place(x=240,y=0,width=130,height=25)
+        self.btn_download["command"] = self.btnDownloadCommand
+        self.btn_download["state"] = tk.DISABLED
+
         pBottomButtons.pack(side=tk.TOP, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
         pBottom.pack(side=tk.TOP, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
 
+        self.root.mainloop()
 
     def loadSessions(self):
-        self.sessions_db = Puttier.loadSessions(self.themes_db)
+        self.sessions_db = Puttier.loadSessions(themes_db=self.themes_db)
         self.session_listbox.delete(0,tk.END)
         index = 0
         for session, theme_name in self.sessions_db.items():
-            self.session_listbox.insert(index, "{} ({})".format(session.name, theme_name))
+            session_name = session.name.replace("%20"," ")
+            self.session_listbox.insert(index, "{} ({})".format(session_name, theme_name))
             index = index + 1
         self.session_listbox.pack(side = tk.RIGHT, fill = tk.BOTH, expand="yes")
 
-    def loadThemes(self):
-        self.themes_db = Puttier.loadThemes()
+    def loadThemes(self, themes_db = None):
+        if not themes_db:
+            self.themes_db = Puttier.loadThemes()
+        else:
+            self.themes_db = themes_db
         self.theme_listbox.delete(0,tk.END)
         index = 0
         for hash, theme in self.themes_db.items():
@@ -133,9 +154,10 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
             index = index + 1
         self.theme_listbox.pack(side = tk.RIGHT, fill = tk.BOTH, expand="yes")
 
-    def GButton_687_command(self):
+    def btnLoadCommand(self):
         self.loadThemes()
         self.loadSessions()
+        self.btn_download["state"] = tk.ACTIVE
 
     def getSelectedSession(self):
         selected_session_idx = None if not self.session_listbox.curselection() else self.session_listbox.curselection()[0]
@@ -151,8 +173,7 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
             theme_instance = (list(self.themes_db.values())[selected_theme_idx])
         return theme_instance
 
-
-    def GButton_46_command(self):
+    def btnUpdateCommand(self):
         selected_session_idx = None if not self.session_listbox.curselection() else self.session_listbox.curselection()[0]
         session_instance = self.getSelectedSession()
         session_name = session_instance.name if session_instance else None
@@ -168,7 +189,15 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         else:
             print("No Theme selected")
 
-    def OnEntryUpDown(self, event):
+    def forceUpdateThemesAndSessions(self):
+        themes_db = Puttier.loadThemes(force_download=True)
+        self.loadThemes(themes_db)
+        self.loadSessions()
+
+    def btnDownloadCommand(self):
+        self.btn_download.after(300,self.forceUpdateThemesAndSessions())
+
+    def onEntryUpDown(self, event):
         selection = event.widget.curselection()[0]
         if event.keysym == 'Up':
             selection += -1
@@ -194,6 +223,8 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
 
     def onThemeSelect(self, evt):
         theme_instance = self.getSelectedTheme()
+        if not theme_instance:
+            return
         self.text_area["bg"] = theme_instance.getColorHex(Theme.DEFAULT_BACKGROUND)
         self.text_area["fg"] = theme_instance.getColorHex(Theme.DEFAULT_FOREGROUND)
         self.text_area.tag_add("user", "1.0", "1.4")
@@ -220,6 +251,6 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         self.text_area.tag_config("ex", foreground=theme_instance.getColorHex(Theme.ANSI_GREEN_BOLD))
 
 if __name__ == "__main__":
-    root = tk.Tk()
-    theApp = App(root)
-    root.mainloop()
+    # root = tk.Tk()
+    theApp = App()
+    # self.root.mainloop()

@@ -7,6 +7,14 @@ class PuttySession:
         self.name = name
         self.theme = theme
 
+    @staticmethod
+    def compare(session1, session2):
+        if session1.name < session2.name:
+            return -1
+        elif session1.name > session2.name:
+            return 1
+        else:
+            return 0
 
 class PuttyLoader:
     base_key = r"SOFTWARE\\SimonTatham\\PuTTY\\Sessions"

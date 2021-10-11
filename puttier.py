@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
 from themeloader import *
 from puttysessions import *
 try:
@@ -8,23 +9,16 @@ except NameError: pass
 class Puttier:
 
     @staticmethod
-    def loadThemes():
-        themes_db = ThemeLoader.loadThemes()
+    def loadThemes(force_download = False):
+        themes_db = ThemeLoader.loadThemes(force = force_download)
         default_theme = Theme.default()
         themes_db[default_theme.toHash()] = default_theme
-        # putty_sessions = list(PuttyLoader.sessions())
-        # for index, s in enumerate(putty_sessions):
-        #     known_theme = None
-        #     th_hash = s.theme.toHash()
-        #     if th_hash in themes_db:
-        #         known_theme = themes_db[th_hash].name
-        #     print("{:3d}. Session: {} has theme = {}".format(index, s.name, known_theme if known_theme else "Custom" ))
         return themes_db
 
     @staticmethod
     def loadSessions(themes_db = None):
-        putty_sessions = list(PuttyLoader.sessions())
-        sessions_dict = dict()
+        putty_sessions = sorted(list(PuttyLoader.sessions()), cmp=PuttySession.compare)
+        sessions_dict = OrderedDict()
         for index, s in enumerate(putty_sessions):
             known_theme = None
             th_hash = s.theme.toHash()

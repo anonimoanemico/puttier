@@ -1,24 +1,40 @@
+from ntpath import join
 import sys
 import os
 # -*- coding: utf-8 -*-
 import glob
 from theme import *
+from StringIO import StringIO
+from zipfile import ZipFile
+from urllib import urlopen
+import shutil
+
 
 class ThemeLoader:
     data_path = os.path.join(os.getcwd(), "data")
 
     @staticmethod
-    def checkout(repo_name, repo_url = "https://github.com/mbadolato/iTerm2-Color-Schemes.git"):
-        """Themes will be checkout in data_path + repo_name """
+    def download(repo_name, url = "https://github.com/mbadolato/iTerm2-Color-Schemes/archive/refs/heads/master.zip", force = False):
         if not repo_name:
-            raise Exception("Error git name repo not found")
-        clone = "git clone {} {}".format(repo_url, repo_name)
+            raise Exception("Error no valid folder name found")
+        dest = os.path.join(ThemeLoader.data_path, repo_name, "putty")
+        if os.path.exists(ThemeLoader.data_path) and not force:
+            # Files already downloaded
+            return
         if not os.path.exists(ThemeLoader.data_path):
             os.makedirs(ThemeLoader.data_path)
-        os.chdir(ThemeLoader.data_path)
-        if not os.path.exists(repo_name):
-            print('Created Directory ', ThemeLoader.data_path)
-            os.system(clone)
+        resp = urlopen(url)
+        zipfile = ZipFile(StringIO(resp.read()))
+        last_file = None
+        for file in zipfile.namelist():
+            if ("/putty/") in file:
+                zipfile.extract(file, path=ThemeLoader.data_path)
+                last_file = file
+        if last_file:
+            source = os.path.join(ThemeLoader.data_path, last_file.rsplit("/",1)[0])
+            shutil.rmtree(dest)
+            shutil.move(source, dest)
+            shutil.rmtree(source.rsplit("/",1)[0])
 
     @staticmethod
     def findThemeFiles(themes_path):
@@ -59,33 +75,37 @@ class ThemeLoader:
         return theme
 
     @staticmethod
-    def loadThemes():
+    def loadThemes(force = False):
         """return a dictionary of themes (key = hash of the theme, value = theme)"""
-        repo_source = "https://github.com/mbadolato/iTerm2-Color-Schemes.git"
-        repo_name = repo_source.rsplit("/")[-1][:-4] # Using iTerm2-Color-Schemes as repo_name (= destination subdir)
-        ThemeLoader.checkout(repo_name, repo_source)
+        repo_source = "https://github.com/mbadolato/iTerm2-Color-Schemes/archive/refs/heads/master.zip"
+        repo_name = repo_source.rsplit("/")[-5] # Using iTerm2-Color-Schemes as repo_name (= destination subdir)
+        ThemeLoader.download(repo_name, repo_source, force=force)
         themes_fullpath = os.path.join(ThemeLoader.data_path, repo_name)
-        files = ThemeLoader.findThemeFiles(themes_fullpath)
-        theme_dict = {}
-        for f in files:
-            theme = None
-            try:
-                theme = ThemeLoader.readThemeFile(f)
-            except:
-                pass
-            if theme is None:
-                continue
-            th_hash = theme.toHash()
-            print("Loaded Theme: {}".format(theme.name))
-            theme_dict[th_hash] = theme
-        return theme_dict
+        try:
+            files = ThemeLoader.findThemeFiles(themes_fullpath)
+            theme_dict = {}
+            for f in files:
+                theme = None
+                try:
+                    theme = ThemeLoader.readThemeFile(f)
+                except:
+                    pass
+                if theme is None:
+                    continue
+                th_hash = theme.toHash()
+                print("Loaded Theme: {}".format(theme.name))
+                theme_dict[th_hash] = theme
+            return theme_dict
+        except Exception as err:
+            print(err)
+            return {}
 
 
 def main():
-    # git clone https://github.com/mbadolato/iTerm2-Color-Schemes.git
     # list all themes in putty/*.reg
-    print(ThemeLoader.loadThemes())
-
+    repo_source = "https://github.com/mbadolato/iTerm2-Color-Schemes/archive/refs/heads/master.zip"
+    repo_name = repo_source.rsplit("/")[-5] # Using iTerm2-Color-Schemes as repo_name (= destination subdir)
+    ThemeLoader.download(repo_name, repo_source)
 
 if __name__ == "__main__":
     main()
