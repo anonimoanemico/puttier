@@ -16,4 +16,4 @@ Below a screenshot of the UI
 
 ![Alt text](example.png?raw=true "Example")
 
- Note: the terminal displayed is the UI is a reproduction.
+ Note: the terminal displayed in the UI is a reproduction.
