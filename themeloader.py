@@ -93,8 +93,8 @@ class ThemeLoader:
                 if theme is None:
                     continue
                 th_hash = theme.toHash()
-                print("Loaded Theme: {}".format(theme.name))
                 theme_dict[th_hash] = theme
+            print("Loaded {} themes".format(len(theme_dict)))
             return theme_dict
         except Exception as err:
             print(err)

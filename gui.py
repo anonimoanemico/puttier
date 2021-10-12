@@ -1,5 +1,10 @@
+# -*- coding: utf-8 -*-
+
 import tkinter as tk
 import tkinter.font as tkFont
+from tkinter import ttk
+from tkinter import font
+
 from puttier import *
 
 class App:
@@ -11,8 +16,9 @@ class App:
         #setting title
         self.root.title("Puttier")
         #setting window size
-        width=800
-        height=500
+        max_width = 800
+        width = max_width
+        height = 560
         screenwidth = self.root.winfo_screenwidth()
         screenheight = self.root.winfo_screenheight()
         alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
@@ -32,7 +38,6 @@ class App:
         ft = tkFont.Font(family='Verdana',size=8)
         self.session_listbox["font"] = ft
         self.session_listbox["fg"] = "#333333"
-        #self.session_listbox["justify"] = "left"
         self.session_listbox.place(x=0,y=0,width=300,height=291)
         self.session_listbox["selectmode"] = "single"
         scrollbar_GListBox_0 = tk.Scrollbar(labelFrame0)
@@ -49,7 +54,6 @@ class App:
         ft = tkFont.Font(family='Verdana',size=8)
         self.theme_listbox["font"] = ft
         self.theme_listbox["fg"] = "#333333"
-        #self.theme_listbox["justify"] = "left"
         self.theme_listbox["selectmode"] = "single"
         self.theme_listbox.bind("<<ListboxSelect>>", self.onThemeSelect)
         self.theme_listbox.bind("<Down>", self.onEntryUpDown)
@@ -62,15 +66,40 @@ class App:
         self.theme_listbox.pack(side = tk.RIGHT, fill = tk.BOTH, expand="yes")
         labelFrame1.pack(side=tk.LEFT, fill = tk.BOTH, expand="yes")
 
-        pBottom = tk.PanedWindow(main_panel, orient=tk.HORIZONTAL)
-        pBottomTerminal = tk.PanedWindow(pBottom, orient=tk.VERTICAL)
+        pBottom = tk.PanedWindow(main_panel, orient=tk.VERTICAL)
+        pBottomFont = tk.PanedWindow(pBottom, orient=tk.HORIZONTAL, height=40)
 
-        self.text_area = tk.Text(pBottomTerminal, height=12)
+        label = ttk.Label(pBottomFont, text="Font Family:")
+        label.pack(side=tk.LEFT, fill=tk.BOTH, pady=0, padx=0)
+        self.font_families = [ f for f in font.families() if tkFont.Font(family=f).metrics()["fixed"] == 1 ]
+        self.font_families.sort()
+        self.fontCombo = ttk.Combobox(pBottomFont, height=20, state="readonly",
+                            values=self.font_families)
+        default_font_family = "Consolas"
+        if default_font_family in self.font_families:
+            self.fontCombo.current(self.font_families.index(default_font_family))
+        self.fontCombo.pack(side=tk.LEFT, fill=tk.BOTH, pady=0, padx=0)
+        self.fontCombo.bind("<<ComboboxSelected>>", self.onSelectFontFamily)
+
+        label = ttk.Label(pBottomFont, text="Font Size:")
+        label.pack(side=tk.LEFT, fill=tk.BOTH, pady=0, padx=0)
+        self.fontSizeCombo = ttk.Combobox(pBottomFont, height=20, state="readonly",
+                            values=range(4,28))
+        self.fontSizeCombo.current(6)
+        self.fontSizeCombo.pack(side=tk.LEFT, fill=tk.BOTH, pady=0, padx=0)
+        self.fontSizeCombo.bind("<<ComboboxSelected>>", self.onSelectFontSize)
+
+        pBottomFont.pack(side=tk.TOP, expand=tk.N, fill=tk.BOTH, pady=0, padx=0)
+
+        pBottomTerminal = tk.PanedWindow(pBottom, orient=tk.VERTICAL, height=160)
+
+        self.text_area = tk.Text(pBottomTerminal, height=160, width=120)
         ft = tkFont.Font(family='Consolas',size=8)
         self.text_area["font"] = ft
-        self.text_area.pack()
+        pBottomTerminal.pack_propagate(0)
+        self.text_area.pack_propagate(0)
         self.text_area.insert(tk.INSERT,
-"""user@machine~> ls --color=auto -al
+""" user@machine  ~/project/target  ls --color=auto -al
 total 1944
 drwxr-xr-x 13 user user    4096 Oct  9 22:36 .
 drwxr-xr-x  4 root root    4096 Dec 13  2016 ..
@@ -89,13 +118,12 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         scrollbar_text_area = tk.Scrollbar(pBottomTerminal)
         self.text_area.config(yscrollcommand = scrollbar_text_area.set, exportselection=False)
         scrollbar_text_area.pack(side = tk.RIGHT, fill = tk.BOTH)
-        self.text_area.pack(side=tk.LEFT, expand=tk.Y, fill=tk.BOTH)
+        self.text_area.pack(side=tk.LEFT, expand=tk.N, fill=tk.Y)
         self.text_area.config(state=tk.DISABLED)
 
         pBottomTerminal.pack(side=tk.TOP, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
 
-        pBottomButtons = tk.PanedWindow(pBottom, orient=tk.HORIZONTAL, height=15)
-        pBottomButtons.pack(side=tk.TOP, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
+        pBottomButtons = tk.PanedWindow(pBottom, orient=tk.HORIZONTAL)
         self.btn_load=tk.Button(pBottomButtons)
         self.btn_load["bg"] = "#efefef"
         ft = tkFont.Font(family='Verdana',size=8)
@@ -127,8 +155,8 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         self.btn_download["command"] = self.btnDownloadCommand
         self.btn_download["state"] = tk.DISABLED
 
-        pBottomButtons.pack(side=tk.TOP, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
-        pBottom.pack(side=tk.TOP, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
+        pBottomButtons.pack(side=tk.BOTTOM, expand=tk.Y, fill=tk.BOTH, pady=5, padx=0)
+        pBottom.pack(side=tk.BOTTOM, expand=tk.Y, fill=tk.BOTH, pady=5, padx=0)
 
         self.root.mainloop()
 
@@ -178,8 +206,10 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         session_instance = self.getSelectedSession()
         session_name = session_instance.name if session_instance else None
         theme_instance = self.getSelectedTheme()
+        font_family = self.fontCombo.get()
+        font_size = self.fontSizeCombo.get()
         if (session_name and theme_instance):
-            PuttyUpdate.updateSession(session_name, theme_instance)
+            PuttyUpdate.updateSession(session_name, theme_instance, font_family, font_size)
             self.loadSessions()
             # reselect previously selected session
             self.session_listbox.select_set(selected_session_idx)
@@ -212,6 +242,11 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         session_instance = self.getSelectedSession()
         if not session_instance:
             return
+        if session_instance and session_instance.font and session_instance.font_size:
+            self.fontCombo.current(self.font_families.index(session_instance.font))
+            if session_instance.font_size < 28 and session_instance.font > 4:
+                self.fontSizeCombo.current(session_instance.font_size - 4)
+
         session_hash = session_instance.theme.toHash()
         self.theme_listbox.selection_clear(0, 'end')
         theme_index = 0
@@ -223,12 +258,17 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
 
     def onThemeSelect(self, evt):
         theme_instance = self.getSelectedTheme()
+        session_instance = self.getSelectedSession()
+        ft = tkFont.Font(family=self.fontCombo.get(), size=self.fontSizeCombo.get())
+        self.text_area["font"] = ft
+
         if not theme_instance:
             return
         self.text_area["bg"] = theme_instance.getColorHex(Theme.DEFAULT_BACKGROUND)
         self.text_area["fg"] = theme_instance.getColorHex(Theme.DEFAULT_FOREGROUND)
-        self.text_area.tag_add("user", "1.0", "1.4")
-        self.text_area.tag_add("machine", "1.5", "1.13")
+        self.text_area.tag_add("user", "1.0", "1.14")
+        self.text_area.tag_add("band", "1.14", "1.33")
+        self.text_area.tag_add(">", "1.33", "1.34")
         self.text_area.tag_add("di", "3.45", "3.46")
         self.text_area.tag_add("di", "4.45", "4.47")
         self.text_area.tag_add("or", "7.45", "7.56")
@@ -241,14 +281,22 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         self.text_area.tag_add("dp", "12.45", "12.51")
         self.text_area.tag_add("ar", "13.45", "13.61")
         self.text_area.tag_add("ex", "14.45", "14.65")
-        self.text_area.tag_config("user", foreground=theme_instance.getColorHex(Theme.ANSI_YELLOW))
-        self.text_area.tag_config("machine", foreground=theme_instance.getColorHex(Theme.ANSI_BLUE))
+        self.text_area.tag_config("user", foreground=theme_instance.getColorHex(Theme.ANSI_WHITE), background=theme_instance.getColorHex(Theme.ANSI_BLACK))
+        self.text_area.tag_config("band", foreground=theme_instance.getColorHex(Theme.ANSI_BLACK), background=theme_instance.getColorHex(Theme.ANSI_BLUE))
+        self.text_area.tag_config(">", foreground=theme_instance.getColorHex(Theme.ANSI_BLUE))
         self.text_area.tag_config("di", foreground=theme_instance.getColorHex(Theme.ANSI_BLUE_BOLD))
         self.text_area.tag_config("or", foreground=theme_instance.getColorHex(Theme.ANSI_RED_BOLD), background=theme_instance.getColorHex(Theme.ANSI_BLACK))
         self.text_area.tag_config("ln", foreground=theme_instance.getColorHex(Theme.ANSI_CYAN_BOLD))
         self.text_area.tag_config("dp", foreground=theme_instance.getColorHex(Theme.ANSI_BLUE), background=theme_instance.getColorHex(Theme.ANSI_GREEN))
         self.text_area.tag_config("ar", foreground=theme_instance.getColorHex(Theme.ANSI_RED_BOLD))
         self.text_area.tag_config("ex", foreground=theme_instance.getColorHex(Theme.ANSI_GREEN_BOLD))
+
+    def onSelectFontFamily(self, evt):
+        self.onThemeSelect(evt)
+
+    def onSelectFontSize(self, evt):
+        self.onThemeSelect(evt)
+
 
 if __name__ == "__main__":
     # root = tk.Tk()

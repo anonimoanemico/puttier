@@ -3,9 +3,11 @@ import winreg
 from theme import *
 
 class PuttySession:
-    def __init__(self, name, theme):
+    def __init__(self, name, theme, font, font_size):
         self.name = name
         self.theme = theme
+        self.font = font
+        self.font_size = font_size
 
     @staticmethod
     def compare(session1, session2):
@@ -43,6 +45,16 @@ class PuttyLoader:
                     yield winreg.QueryValueEx(key, colour_name)[0]
                 except EnvironmentError:
                     pass
+    @staticmethod
+    def sessionFont(session_name, reg = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)):
+        keypath = PuttyLoader.getSessionKey(session_name)
+        with winreg.OpenKey(reg, keypath, winreg.KEY_READ) as key:
+            try:
+                font_name = winreg.QueryValueEx(key,"Font")[0]
+                font_size = winreg.QueryValueEx(key,"FontHeight")[0]
+                return (font_name, font_size)
+            except EnvironmentError:
+                return (None, None)
 
     @staticmethod
     def toTheme(session_colors):
@@ -64,7 +76,8 @@ class PuttyLoader:
         for name in PuttyLoader.sessionNames():
             session_colors = (PuttyLoader.sessionColors(name))
             theme = PuttyLoader.toTheme(session_colors)
-            yield PuttySession(name, theme)
+            font, font_size = PuttyLoader.sessionFont(name)
+            yield PuttySession(name, theme, font, font_size)
 
     @staticmethod
     def themeBySession(session_name):
@@ -73,13 +86,16 @@ class PuttyLoader:
 
 class PuttyUpdate:
     @staticmethod
-    def updateSession(session_name, theme=Theme, reg = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)):
+    def updateSession(session_name, theme=Theme, font_family=None, font_size=None, reg = winreg.ConnectRegistry(None, winreg.HKEY_CURRENT_USER)):
         keypath = PuttyLoader.getSessionKey(session_name)
         with winreg.OpenKey(reg, keypath, 0, winreg.KEY_ALL_ACCESS) as key:
+            if font_family:
+                winreg.SetValueEx(key, "Font", 0, winreg.REG_SZ, str(font_family))
+            if font_size and int(font_size):
+                winreg.SetValueEx(key, "FontHeight", 0, winreg.REG_DWORD, int(font_size))
             for index,color in enumerate(theme.colors):
                 try:
                     colour_name = "{0}{1}".format("Colour",index)
-                    # print(winreg.QueryValueEx(key, colour_name)[0])
                     winreg.SetValueEx(key, colour_name, 0, winreg.REG_SZ, str(color.regFormat()))
                     winreg.FlushKey(key)
                 except EnvironmentError as err:
