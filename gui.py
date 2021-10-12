@@ -84,8 +84,8 @@ class App:
         label = ttk.Label(pBottomFont, text="Font Size:")
         label.pack(side=tk.LEFT, fill=tk.BOTH, pady=0, padx=0)
         self.fontSizeCombo = ttk.Combobox(pBottomFont, height=20, state="readonly",
-                            values=range(4,28))
-        self.fontSizeCombo.current(6)
+                            values=list(range(4,28)))
+        self.fontSizeCombo.current(1)
         self.fontSizeCombo.pack(side=tk.LEFT, fill=tk.BOTH, pady=0, padx=0)
         self.fontSizeCombo.bind("<<ComboboxSelected>>", self.onSelectFontSize)
 
@@ -244,8 +244,9 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
             return
         if session_instance and session_instance.font and session_instance.font_size:
             self.fontCombo.current(self.font_families.index(session_instance.font))
-            if session_instance.font_size < 28 and session_instance.font > 4:
-                self.fontSizeCombo.current(session_instance.font_size - 4)
+            curr_font_size = int(session_instance.font_size)
+            if curr_font_size < 28 and curr_font_size > 4:
+                self.fontSizeCombo.current(str(curr_font_size - 4))
 
         session_hash = session_instance.theme.toHash()
         self.theme_listbox.selection_clear(0, 'end')

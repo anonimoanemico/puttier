@@ -2,6 +2,8 @@
 from collections import OrderedDict
 from themeloader import *
 from puttysessions import *
+from functools import cmp_to_key
+
 try:
     input = raw_input
 except NameError: pass
@@ -17,7 +19,7 @@ class Puttier:
 
     @staticmethod
     def loadSessions(themes_db = None):
-        putty_sessions = sorted(list(PuttyLoader.sessions()), cmp=PuttySession.compare)
+        putty_sessions = sorted(list(PuttyLoader.sessions()), key=cmp_to_key(PuttySession.compare))
         sessions_dict = OrderedDict()
         for index, s in enumerate(putty_sessions):
             known_theme = None

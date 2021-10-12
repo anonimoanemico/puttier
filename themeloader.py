@@ -4,9 +4,17 @@ import os
 # -*- coding: utf-8 -*-
 import glob
 from theme import *
-from StringIO import StringIO
+try:
+    from StringIO import StringIO ## for Python 2
+except ImportError:
+    from io import StringIO ## for Python 3
 from zipfile import ZipFile
-from urllib import urlopen
+
+try:
+    from urllib.request import urlopen ## for Python 3
+except ImportError:
+    from urllib import urlopen ## for Python 2
+
 import shutil
 
 
