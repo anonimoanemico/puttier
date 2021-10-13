@@ -1,5 +1,3 @@
-from ntpath import join
-import sys
 import os
 # -*- coding: utf-8 -*-
 import glob
@@ -7,7 +5,7 @@ from theme import *
 try:
     from StringIO import StringIO ## for Python 2
 except ImportError:
-    from io import StringIO ## for Python 3
+    from io import BytesIO as StringIO## for Python 3
 from zipfile import ZipFile
 
 try:
@@ -25,24 +23,29 @@ class ThemeLoader:
     def download(repo_name, url = "https://github.com/mbadolato/iTerm2-Color-Schemes/archive/refs/heads/master.zip", force = False):
         if not repo_name:
             raise Exception("Error no valid folder name found")
-        dest = os.path.join(ThemeLoader.data_path, repo_name, "putty")
-        if os.path.exists(ThemeLoader.data_path) and not force:
+        dest = os.path.abspath(os.path.join(ThemeLoader.data_path, repo_name, "putty"))
+        if os.path.exists(dest) and not force:
             # Files already downloaded
             return
-        if not os.path.exists(ThemeLoader.data_path):
-            os.makedirs(ThemeLoader.data_path)
+        not os.path.exists(dest) or shutil.rmtree(dest)
+        os.makedirs(dest)
+        print(dest)
         resp = urlopen(url)
         zipfile = ZipFile(StringIO(resp.read()))
         last_file = None
         for file in zipfile.namelist():
-            if ("/putty/") in file:
+            if "/putty/" in file:
                 zipfile.extract(file, path=ThemeLoader.data_path)
-                last_file = file
+                abs_path = os.path.abspath(os.path.join(ThemeLoader.data_path, file))
+                if os.path.isdir(abs_path):
+                    print("dir found")
+                    continue
+                shutil.move(abs_path, dest)
+                last_file = abs_path
         if last_file:
-            source = os.path.join(ThemeLoader.data_path, last_file.rsplit("/",1)[0])
-            shutil.rmtree(dest)
-            shutil.move(source, dest)
-            shutil.rmtree(source.rsplit("/",1)[0])
+            import_dir = os.path.abspath(os.path.join(os.path.join(last_file, os.pardir), os.pardir))
+            print(import_dir)
+            not os.path.exists(import_dir) or shutil.rmtree(import_dir)
 
     @staticmethod
     def findThemeFiles(themes_path):

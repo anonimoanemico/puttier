@@ -18,7 +18,7 @@ class App:
         #setting window size
         max_width = 800
         width = max_width
-        height = 560
+        height = 650
         screenwidth = self.root.winfo_screenwidth()
         screenheight = self.root.winfo_screenheight()
         alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
@@ -32,24 +32,51 @@ class App:
         top_panel.pack(side=tk.TOP, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
 
         labelFrame0 = tk.LabelFrame(top_panel, text="Sessions", padx=0, pady=0)
+        self.setSessionsListBox(labelFrame0)
 
-        self.session_listbox=tk.Listbox(labelFrame0)
+        labelFrame1 = tk.LabelFrame(top_panel, text="Themes", padx=0, pady=0)
+        self.setThemesListBox(labelFrame1)
+
+        labelFrame1.pack(side=tk.LEFT, fill = tk.BOTH, expand="yes")
+
+        pBottom = tk.PanedWindow(main_panel, orient=tk.VERTICAL)
+        pBottomFont = tk.PanedWindow(pBottom, orient=tk.HORIZONTAL, height=40)
+
+        self.font_families = [ f for f in font.families() if tkFont.Font(family=f).metrics()["fixed"] == 1 ]
+        self.font_families.sort()
+
+        self.setFontSelectionArea(pBottomFont)
+
+        pBottomFont.pack(side=tk.TOP, expand=tk.N, fill=tk.BOTH, pady=0, padx=0)
+
+        pBottomTerminal = tk.PanedWindow(pBottom, orient=tk.VERTICAL, height=180)
+        self.setTextArea(pBottomTerminal)
+        pBottomTerminal.pack(side=tk.TOP, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
+
+        pBottomButtons = tk.PanedWindow(pBottom, orient=tk.HORIZONTAL)
+        self.setBottomButtons(pBottomButtons)
+        pBottomButtons.pack(side=tk.BOTTOM, expand=tk.Y, fill=tk.BOTH, pady=5, padx=0)
+        pBottom.pack(side=tk.BOTTOM, expand=tk.Y, fill=tk.BOTH, pady=5, padx=0)
+
+        self.root.mainloop()
+
+    def setSessionsListBox(self, label_frame):
+        self.session_listbox=tk.Listbox(label_frame)
         self.session_listbox["borderwidth"] = "1px"
         ft = tkFont.Font(family='Verdana',size=8)
         self.session_listbox["font"] = ft
         self.session_listbox["fg"] = "#333333"
         self.session_listbox.place(x=0,y=0,width=300,height=291)
         self.session_listbox["selectmode"] = "single"
-        scrollbar_GListBox_0 = tk.Scrollbar(labelFrame0)
+        scrollbar_GListBox_0 = tk.Scrollbar(label_frame)
         self.session_listbox.config(yscrollcommand = scrollbar_GListBox_0.set, exportselection=False)
         scrollbar_GListBox_0.pack(side = tk.RIGHT, fill = tk.BOTH)
         self.session_listbox.pack(side = tk.RIGHT, fill = tk.BOTH, expand="yes")
-        labelFrame0.pack(side=tk.LEFT, fill = tk.BOTH, expand="yes")
+        label_frame.pack(side=tk.LEFT, fill = tk.BOTH, expand="yes")
         self.session_listbox.bind("<<ListboxSelect>>", self.onSessionSelect)
 
-        labelFrame1 = tk.LabelFrame(top_panel, text="Themes", padx=0, pady=0)
-
-        self.theme_listbox=tk.Listbox(labelFrame1)
+    def setThemesListBox(self, label_frame):
+        self.theme_listbox=tk.Listbox(label_frame)
         self.theme_listbox["borderwidth"] = "1px"
         ft = tkFont.Font(family='Verdana',size=8)
         self.theme_listbox["font"] = ft
@@ -58,45 +85,36 @@ class App:
         self.theme_listbox.bind("<<ListboxSelect>>", self.onThemeSelect)
         self.theme_listbox.bind("<Down>", self.onEntryUpDown)
         self.theme_listbox.bind("<Up>", self.onEntryUpDown)
-
         self.theme_listbox.place(x=0,y=0,width=300,height=291)
-        scrollbar_GListBox_1 = tk.Scrollbar(labelFrame1)
-        self.theme_listbox.config(yscrollcommand = scrollbar_GListBox_1.set, exportselection=False)
-        scrollbar_GListBox_1.pack(side = tk.RIGHT, fill = tk.BOTH)
+        scrollbar_theme_listbox = tk.Scrollbar(label_frame)
+        self.theme_listbox.config(yscrollcommand = scrollbar_theme_listbox.set, exportselection=False)
+        scrollbar_theme_listbox.pack(side = tk.RIGHT, fill = tk.BOTH)
         self.theme_listbox.pack(side = tk.RIGHT, fill = tk.BOTH, expand="yes")
-        labelFrame1.pack(side=tk.LEFT, fill = tk.BOTH, expand="yes")
 
-        pBottom = tk.PanedWindow(main_panel, orient=tk.VERTICAL)
-        pBottomFont = tk.PanedWindow(pBottom, orient=tk.HORIZONTAL, height=40)
-
-        label = ttk.Label(pBottomFont, text="Font Family:")
-        label.pack(side=tk.LEFT, fill=tk.BOTH, pady=0, padx=0)
-        self.font_families = [ f for f in font.families() if tkFont.Font(family=f).metrics()["fixed"] == 1 ]
-        self.font_families.sort()
-        self.fontCombo = ttk.Combobox(pBottomFont, height=20, state="readonly",
+    def setFontSelectionArea(self, panel):
+        self.fontCombo = ttk.Combobox(panel, height=20, state="readonly",
                             values=self.font_families)
+        label = ttk.Label(panel, text="Font Family:")
+        label.pack(side=tk.LEFT, fill=tk.BOTH, pady=0, padx=0)
         default_font_family = "Consolas"
         if default_font_family in self.font_families:
             self.fontCombo.current(self.font_families.index(default_font_family))
         self.fontCombo.pack(side=tk.LEFT, fill=tk.BOTH, pady=0, padx=0)
         self.fontCombo.bind("<<ComboboxSelected>>", self.onSelectFontFamily)
 
-        label = ttk.Label(pBottomFont, text="Font Size:")
+        label = ttk.Label(panel, text="Font Size:")
         label.pack(side=tk.LEFT, fill=tk.BOTH, pady=0, padx=0)
-        self.fontSizeCombo = ttk.Combobox(pBottomFont, height=20, state="readonly",
+        self.fontSizeCombo = ttk.Combobox(panel, height=20, state="readonly",
                             values=list(range(4,28)))
         self.fontSizeCombo.current(1)
         self.fontSizeCombo.pack(side=tk.LEFT, fill=tk.BOTH, pady=0, padx=0)
         self.fontSizeCombo.bind("<<ComboboxSelected>>", self.onSelectFontSize)
 
-        pBottomFont.pack(side=tk.TOP, expand=tk.N, fill=tk.BOTH, pady=0, padx=0)
-
-        pBottomTerminal = tk.PanedWindow(pBottom, orient=tk.VERTICAL, height=160)
-
-        self.text_area = tk.Text(pBottomTerminal, height=160, width=120)
+    def setTextArea(self, panel):
+        self.text_area = tk.Text(panel, height=160, width=120)
         ft = tkFont.Font(family='Consolas',size=8)
         self.text_area["font"] = ft
-        pBottomTerminal.pack_propagate(0)
+        panel.pack_propagate(0)
         self.text_area.pack_propagate(0)
         self.text_area.insert(tk.INSERT,
 """ user@machine  ~/project/target  ls --color=auto -al
@@ -115,16 +133,14 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
 -rwxr-xr-x  1 user user      40 Apr 27 20:32 stop_ucounter_svc.sh
 """)
         self.text_area.insert(tk.END, "\n")
-        scrollbar_text_area = tk.Scrollbar(pBottomTerminal)
+        scrollbar_text_area = tk.Scrollbar(panel)
         self.text_area.config(yscrollcommand = scrollbar_text_area.set, exportselection=False)
         scrollbar_text_area.pack(side = tk.RIGHT, fill = tk.BOTH)
         self.text_area.pack(side=tk.LEFT, expand=tk.N, fill=tk.Y)
         self.text_area.config(state=tk.DISABLED)
 
-        pBottomTerminal.pack(side=tk.TOP, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
-
-        pBottomButtons = tk.PanedWindow(pBottom, orient=tk.HORIZONTAL)
-        self.btn_load=tk.Button(pBottomButtons)
+    def setBottomButtons(self, panel):
+        self.btn_load=tk.Button(panel)
         self.btn_load["bg"] = "#efefef"
         ft = tkFont.Font(family='Verdana',size=8)
         self.btn_load["font"] = ft
@@ -134,7 +150,7 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         self.btn_load.place(x=0,y=0,width=100,height=25)
         self.btn_load["command"] = self.btnLoadCommand
 
-        btn_update=tk.Button(pBottomButtons)
+        btn_update=tk.Button(panel)
         btn_update["bg"] = "#efefef"
         ft = tkFont.Font(family='Verdana',size=8)
         btn_update["font"] = ft
@@ -144,7 +160,7 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         btn_update.place(x=110,y=0,width=120,height=25)
         btn_update["command"] = self.btnUpdateCommand
 
-        self.btn_download=tk.Button(pBottomButtons)
+        self.btn_download=tk.Button(panel)
         self.btn_download["bg"] = "#efefef"
         ft = tkFont.Font(family='Verdana',size=8)
         self.btn_download["font"] = ft
@@ -154,11 +170,6 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         self.btn_download.place(x=240,y=0,width=130,height=25)
         self.btn_download["command"] = self.btnDownloadCommand
         self.btn_download["state"] = tk.DISABLED
-
-        pBottomButtons.pack(side=tk.BOTTOM, expand=tk.Y, fill=tk.BOTH, pady=5, padx=0)
-        pBottom.pack(side=tk.BOTTOM, expand=tk.Y, fill=tk.BOTH, pady=5, padx=0)
-
-        self.root.mainloop()
 
     def loadSessions(self):
         self.sessions_db = Puttier.loadSessions(themes_db=self.themes_db)
@@ -225,7 +236,10 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         self.loadSessions()
 
     def btnDownloadCommand(self):
-        self.btn_download.after(300,self.forceUpdateThemesAndSessions())
+        self.btn_download.after(1000,self.forceUpdateThemesAndSessions())
+
+    def btnRunPutty(self):
+        pass
 
     def onEntryUpDown(self, event):
         selection = event.widget.curselection()[0]
@@ -242,6 +256,7 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         session_instance = self.getSelectedSession()
         if not session_instance:
             return
+
         if session_instance and session_instance.font and session_instance.font_size:
             self.fontCombo.current(self.font_families.index(session_instance.font))
             curr_font_size = int(session_instance.font_size)
