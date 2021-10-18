@@ -19,7 +19,7 @@ Below a screenshot of the UI
 
  Note: the terminal displayed in the UI is a reproduction.
 
-Credits
+# Credits
 
 Color schemas are kindly provided:
 - mbadolato project: https://github.com/mbadolato repository https://github.com/mbadolato/iTerm2-Color-Schemes
