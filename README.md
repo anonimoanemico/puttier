@@ -21,16 +21,9 @@ Below a screenshot of the UI
 
 Credits
 
-Color schemas are kindly provided by Mark Badolato project:
-https://github.com/mbadolato/iTerm2-Color-Schemes
-https://github.com/jacektrocinski
-url=https://github.com/jacektrocinski/pretty-putty/archive/refs/heads/master.zip
-search_path=""
+Color schemas are kindly provided:
+- mbadolato project: https://github.com/mbadolato repository https://github.com/mbadolato/iTerm2-Color-Schemes
+- jacektrocinski https://github.com/jacektrocinski repository https://github.com/jacektrocinski/pretty-putty/archive/refs/heads/master.zip
+- teeli https://github.com/teeli repository https://raw.githubusercontent.com/teeli/dracula-putty/master/dracula.reg
 
-[teeli-repo]
-credits=https://github.com/teeli
-url=https://raw.githubusercontent.com/teeli/dracula-putty/master/dracula.reg
-
-
-Thanks to Mark Badolato and all other contributors for sharing those files:
-https://github.com/mbadolato/iTerm2-Color-Schemes#credits
+Thanks all contributors for sharing those files !
