@@ -3,7 +3,9 @@ from collections import OrderedDict
 from themeloader import *
 from puttysessions import *
 from functools import cmp_to_key
-
+import configparser
+import io
+from themerepo import Themerepo
 try:
     input = raw_input
 except NameError: pass
@@ -11,8 +13,9 @@ except NameError: pass
 class Puttier:
 
     @staticmethod
-    def loadThemes(force_download = False):
-        themes_db = ThemeLoader.loadThemes(force = force_download)
+    def loadThemes(force_download=False):
+        themes_repo = Puttier.loadConfiguration()
+        themes_db = ThemeLoader.loadThemes(themes_repo, force_download)
         default_theme = Theme.default()
         themes_db[default_theme.toHash()] = default_theme
         return themes_db
@@ -30,8 +33,27 @@ class Puttier:
             sessions_dict[s] = known_theme
         return sessions_dict
 
+    @staticmethod
+    def loadConfiguration():
+        # Themerepo
+        themes_repo = list()
+        # Load the configuration file
+        config = configparser.ConfigParser()
+        config.read_file(open("themes.ini"))
+
+        for section in config.sections():
+            name = section
+            url = config.get(section, "url")
+            is_zip = True if url.endswith(".zip") else False
+            search_path = None if not is_zip else config.get(section, "search_path")
+            credits_url = config.get(section, "credits")
+            themes_repo.append(Themerepo(name, url, is_zip, search_path, credits_url))
+        return themes_repo
 
 def main():
+    themes_repo = Puttier.loadThemes(force_download=True)
+
+    return
     themes_db = ThemeLoader.loadThemes()
     default_theme = Theme.default()
     themes_db[default_theme.toHash()] = default_theme

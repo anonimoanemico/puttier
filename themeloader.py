@@ -12,40 +12,49 @@ try:
     from urllib.request import urlopen ## for Python 3
 except ImportError:
     from urllib import urlopen ## for Python 2
-
 import shutil
-
 
 class ThemeLoader:
     data_path = os.path.join(os.getcwd(), "data")
 
     @staticmethod
-    def download(repo_name, url = "https://github.com/mbadolato/iTerm2-Color-Schemes/archive/refs/heads/master.zip", force = False):
-        if not repo_name:
+    def reset_destination_dir(dest_dir):
+        if not dest_dir:
             raise Exception("Error no valid folder name found")
-        dest = os.path.abspath(os.path.join(ThemeLoader.data_path, repo_name, "putty"))
-        if os.path.exists(dest) and not force:
+        not os.path.exists(dest_dir) or shutil.rmtree(dest_dir)
+        os.makedirs(dest_dir)
+
+    @staticmethod
+    def download_repo(repo, force = False):
+        if not repo.name:
+            raise Exception("Error no valid folder name found")
+        dest_dir = os.path.abspath(os.path.join(ThemeLoader.data_path, repo.name)) + os.sep
+        if os.path.exists(dest_dir) and not force:
             # Files already downloaded
             return
-        not os.path.exists(dest) or shutil.rmtree(dest)
-        os.makedirs(dest)
-        print(dest)
-        resp = urlopen(url)
-        zipfile = ZipFile(StringIO(resp.read()))
-        last_file = None
-        for file in zipfile.namelist():
-            if "/putty/" in file:
-                zipfile.extract(file, path=ThemeLoader.data_path)
-                abs_path = os.path.abspath(os.path.join(ThemeLoader.data_path, file))
-                if os.path.isdir(abs_path):
-                    print("dir found")
-                    continue
-                shutil.move(abs_path, dest)
-                last_file = abs_path
-        if last_file:
-            import_dir = os.path.abspath(os.path.join(os.path.join(last_file, os.pardir), os.pardir))
-            print(import_dir)
-            not os.path.exists(import_dir) or shutil.rmtree(import_dir)
+        ThemeLoader.reset_destination_dir(dest_dir)
+        if repo.is_zip:
+            resp = urlopen(repo.url)
+            zipfile = ZipFile(StringIO(resp.read()))
+            for file in zipfile.namelist():
+                if file.endswith(".reg"):
+                    # and (str(repo.search_path) in str(file)):
+                    zipfile.extract(file, path=ThemeLoader.data_path)
+                    abs_path = os.path.abspath(os.path.join(ThemeLoader.data_path, file))
+                    if os.path.isdir(abs_path):
+                        print("dir found")
+                        continue
+                    shutil.move(abs_path, dest_dir)
+            if zipfile.namelist():
+                unzipped_dir = os.path.abspath(os.path.join(ThemeLoader.data_path, zipfile.namelist()[0]))
+                print(unzipped_dir)
+                not os.path.exists(unzipped_dir) or shutil.rmtree(unzipped_dir)
+        else:
+            resp = urlopen(repo.url)
+            file_name = repo.url.split('/')[-1]
+            dest_file = os.path.join(ThemeLoader.data_path, repo.name, file_name)
+            open(dest_file, 'wb').write(resp.read())
+
 
     @staticmethod
     def findThemeFiles(themes_path):
@@ -86,14 +95,11 @@ class ThemeLoader:
         return theme
 
     @staticmethod
-    def loadThemes(force = False):
+    def loadFromDirectory():
         """return a dictionary of themes (key = hash of the theme, value = theme)"""
-        repo_source = "https://github.com/mbadolato/iTerm2-Color-Schemes/archive/refs/heads/master.zip"
-        repo_name = repo_source.rsplit("/")[-5] # Using iTerm2-Color-Schemes as repo_name (= destination subdir)
-        ThemeLoader.download(repo_name, repo_source, force=force)
-        themes_fullpath = os.path.join(ThemeLoader.data_path, repo_name)
         try:
-            files = ThemeLoader.findThemeFiles(themes_fullpath)
+            search_expr = ThemeLoader.data_path + os.sep + "**" + os.sep + "*.reg"
+            files = glob.glob(search_expr, recursive=True)
             theme_dict = {}
             for f in files:
                 theme = None
@@ -111,12 +117,28 @@ class ThemeLoader:
             print(err)
             return {}
 
+    @staticmethod
+    def merge_two_dicts(x, y):
+        """Given two dictionaries, merge them into a new dict as a shallow copy."""
+        z = x.copy()
+        z.update(y)
+        return z
+
+    @staticmethod
+    def loadThemes(themes_repo, force_download = False):
+        """return a dictionary of themes (key = hash of the theme, value = theme)"""
+        if not force_download:
+            return ThemeLoader.loadFromDirectory()
+
+        theme_dict = {}
+        for repo in themes_repo:
+            print("Loading themes from repo: {}".format(repo.name))
+            ThemeLoader.download_repo(repo, force=force_download)
+            theme_dict = ThemeLoader.merge_two_dicts (theme_dict, ThemeLoader.loadFromDirectory())
+        return theme_dict
 
 def main():
-    # list all themes in putty/*.reg
-    repo_source = "https://github.com/mbadolato/iTerm2-Color-Schemes/archive/refs/heads/master.zip"
-    repo_name = repo_source.rsplit("/")[-5] # Using iTerm2-Color-Schemes as repo_name (= destination subdir)
-    ThemeLoader.download(repo_name, repo_source)
+    ThemeLoader.loadThemes(None, False)
 
 if __name__ == "__main__":
     main()
