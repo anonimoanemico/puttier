@@ -4,13 +4,13 @@ Change colors to putty sessions.
 It is possible to use the command line tool, example:
 
 ```sh
-py.exr -m puttier.nogui
+py.exe -m puttier.nogui
 ```
 
 or the GUI:
 
 ```sh
-py.exr -m puttier
+py.exe -m puttier
 ```
 
 Below a screenshot of the UI
