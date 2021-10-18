@@ -4,8 +4,7 @@ import tkinter as tk
 import tkinter.font as tkFont
 from tkinter import ttk
 from tkinter import font
-
-from puttier import *
+from puttier.configurator import *
 
 class App:
 
@@ -18,12 +17,12 @@ class App:
         #setting window size
         max_width = 800
         width = max_width
-        height = 650
+        height = 600
         screenwidth = self.root.winfo_screenwidth()
         screenheight = self.root.winfo_screenheight()
         alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
         self.root.geometry(alignstr)
-        self.root.resizable(width=False, height=False)
+        self.root.resizable(width=True, height=True)
 
         main_panel = tk.PanedWindow(self.root, orient=tk.VERTICAL)
         main_panel.pack(side=tk.TOP, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
@@ -40,20 +39,24 @@ class App:
         labelFrame1.pack(side=tk.LEFT, fill = tk.BOTH, expand="yes")
 
         pBottom = tk.PanedWindow(main_panel, orient=tk.VERTICAL)
-        pBottomFont = tk.PanedWindow(pBottom, orient=tk.HORIZONTAL, height=40)
+        pBottomFont = tk.PanedWindow(pBottom, orient=tk.HORIZONTAL)
 
         self.font_families = [ f for f in font.families() if tkFont.Font(family=f).metrics()["fixed"] == 1 ]
         self.font_families.sort()
 
         self.setFontSelectionArea(pBottomFont)
 
-        pBottomFont.pack(side=tk.TOP, expand=tk.N, fill=tk.BOTH, pady=0, padx=0)
+        pBottomFont.pack(side=tk.TOP, expand=tk.N, fill=tk.BOTH, pady=5, padx=0)
 
-        pBottomTerminal = tk.PanedWindow(pBottom, orient=tk.VERTICAL, height=180)
+        pBottomBottom = tk.PanedWindow(pBottom, orient=tk.HORIZONTAL)
+        pBottomBottom.pack(side=tk.TOP, expand=tk.Y, fill=tk.BOTH, pady=5, padx=0)
+
+        pBottomTerminal = tk.PanedWindow(pBottomBottom, orient=tk.VERTICAL, height=225)
         self.setTextArea(pBottomTerminal)
         pBottomTerminal.pack(side=tk.TOP, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
 
-        pBottomButtons = tk.PanedWindow(pBottom, orient=tk.HORIZONTAL)
+        pBottomButtons = tk.PanedWindow(pBottomBottom, orient=tk.HORIZONTAL)
+
         self.setBottomButtons(pBottomButtons)
         pBottomButtons.pack(side=tk.BOTTOM, expand=tk.Y, fill=tk.BOTH, pady=5, padx=0)
         pBottom.pack(side=tk.BOTTOM, expand=tk.Y, fill=tk.BOTH, pady=5, padx=0)
@@ -172,7 +175,7 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         self.btn_download["state"] = tk.DISABLED
 
     def loadSessions(self):
-        self.sessions_db = Puttier.loadSessions(themes_db=self.themes_db)
+        self.sessions_db = Configurator.loadSessions(themes_db=self.themes_db)
         self.session_listbox.delete(0,tk.END)
         index = 0
         for session, theme_name in self.sessions_db.items():
@@ -183,7 +186,7 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
 
     def loadThemes(self, themes_db = None):
         if not themes_db:
-            self.themes_db = Puttier.loadThemes()
+            self.themes_db = Configurator.loadThemes()
         else:
             self.themes_db = themes_db
         self.theme_listbox.delete(0,tk.END)
@@ -231,7 +234,7 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
             print("No Theme selected")
 
     def forceUpdateThemesAndSessions(self):
-        themes_db = Puttier.loadThemes(force_download=True)
+        themes_db = Configurator.loadThemes(force_download=True)
         self.loadThemes(themes_db)
         self.loadSessions()
 

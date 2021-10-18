@@ -4,13 +4,13 @@ Change colors to putty sessions.
 It is possible to use the command line tool, example:
 
 ```sh
-python puttier.py
+py.exr -m puttier.nogui
 ```
 
 or the GUI:
 
 ```sh
-python gui.py
+py.exr -m puttier
 ```
 
 Below a screenshot of the UI
@@ -30,8 +30,6 @@ search_path=""
 [teeli-repo]
 credits=https://github.com/teeli
 url=https://raw.githubusercontent.com/teeli/dracula-putty/master/dracula.reg
-
-
 
 
 Thanks to Mark Badolato and all other contributors for sharing those files:

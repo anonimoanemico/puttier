@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-from collections import OrderedDict
-from themeloader import *
-from puttysessions import *
 from functools import cmp_to_key
-import io
+from puttier.themeloader import *
+from puttier.puttysessions import *
 
 
 class Themerepo:
