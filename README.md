@@ -23,7 +23,7 @@ Credits
 
 Color schemas are kindly provided:
 - mbadolato project: https://github.com/mbadolato repository https://github.com/mbadolato/iTerm2-Color-Schemes
-- jacektrocinski https://github.com/jacektrocinski repository https://github.com/jacektrocinski/pretty-putty/archive/refs/heads/master.zip
-- teeli https://github.com/teeli repository https://raw.githubusercontent.com/teeli/dracula-putty/master/dracula.reg
+- jacektrocinski https://github.com/jacektrocinski repository https://github.com/jacektrocinski/pretty-putty
+- teeli https://github.com/teeli repository https://raw.githubusercontent.com/teeli/dracula-putty
 
 Thanks all contributors for sharing those files !
