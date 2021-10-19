@@ -19,7 +19,6 @@ Below a screenshot of the UI
 
  Note: the terminal displayed in the UI is a reproduction.
 
-
 # Build and install
 Otherwise you can build the egg package and run the executable, with the following steps:
 ## Build
