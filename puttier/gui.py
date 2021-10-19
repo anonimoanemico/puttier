@@ -316,8 +316,8 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
     def onSelectFontSize(self, evt):
         self.onThemeSelect(evt)
 
+def main():
+    theApp = App()
 
 if __name__ == "__main__":
-    # root = tk.Tk()
-    theApp = App()
-    # self.root.mainloop()
+    main()

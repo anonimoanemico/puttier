@@ -4,13 +4,13 @@ Change colors to putty sessions.
 It is possible to use the command line tool, example:
 
 ```sh
-py.exr -m puttier.nogui
+py.exe -m puttier.nogui
 ```
 
 or the GUI:
 
 ```sh
-py.exr -m puttier
+py.exe -m puttier
 ```
 
 Below a screenshot of the UI
@@ -19,18 +19,33 @@ Below a screenshot of the UI
 
  Note: the terminal displayed in the UI is a reproduction.
 
-Credits
 
-Color schemas are kindly provided by Mark Badolato project:
-https://github.com/mbadolato/iTerm2-Color-Schemes
-https://github.com/jacektrocinski
-url=https://github.com/jacektrocinski/pretty-putty/archive/refs/heads/master.zip
-search_path=""
+# Build and install
+Otherwise you can build the egg package and run the executable, with the following steps:
+## Build
+```sh
+git clone git@github.com:anonimoanemico/puttier.git
+cd puttier
+py -m build
+```
 
-[teeli-repo]
-credits=https://github.com/teeli
-url=https://raw.githubusercontent.com/teeli/dracula-putty/master/dracula.reg
+## Install
+Using pip3 or another pip version
+
+```sh
+pip3 install .\dist\puttier-0.0.2-py3-none-any.whl
+```
+## Run
+```sh
+puttier
+```
 
 
-Thanks to Mark Badolato and all other contributors for sharing those files:
-https://github.com/mbadolato/iTerm2-Color-Schemes#credits
+# Credits
+
+Color schemas are kindly provided:
+- mbadolato project: https://github.com/mbadolato repository https://github.com/mbadolato/iTerm2-Color-Schemes
+- jacektrocinski https://github.com/jacektrocinski repository https://github.com/jacektrocinski/pretty-putty
+- teeli https://github.com/teeli repository https://raw.githubusercontent.com/teeli/dracula-putty
+
+Thanks all contributors for sharing those files!
