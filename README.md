@@ -21,9 +21,16 @@ Below a screenshot of the UI
 
 # Build and install
 Otherwise you can build the egg package and run the executable, with the following steps:
+
+## Prerequisits
+If you don't have build
+```sh
+py -m pip install build
+```
+
 ## Build
 ```sh
-git clone git@github.com:anonimoanemico/puttier.git
+git clone https://github.com/anonimoanemico/puttier.git
 cd puttier
 py -m build
 ```
@@ -32,10 +39,19 @@ py -m build
 Using pip3 or another pip version
 
 ```sh
-pip3 install .\dist\puttier-0.0.2-py3-none-any.whl
+py -m pip .\dist\puttier-0.0.2-py3-none-any.whl
 ```
+
 ## Run
+If your PATH variable contains the path to your Python script folder than you can simply execute:
+
 ```sh
+puttier
+```
+
+Otherwise locate  where Scripts are installed (normally in Scripts folder inside your local Python install dir) and do:
+```sh
+cd C:\Users\MYUSER\AppData\Local\Programs\Python\Python39\Scripts
 puttier
 ```
 
