@@ -5,7 +5,8 @@ import tkinter.font as tkFont
 from tkinter import ttk
 from tkinter import font
 from puttier.configurator import *
-
+import threading
+import puttier.definitions as appconfig
 class App:
 
     def __init__(self):
@@ -17,7 +18,7 @@ class App:
         #setting window size
         max_width = 800
         width = max_width
-        height = 600
+        height = 615
         screenwidth = self.root.winfo_screenwidth()
         screenheight = self.root.winfo_screenheight()
         alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
@@ -33,10 +34,10 @@ class App:
         labelFrame0 = tk.LabelFrame(top_panel, text="Sessions", padx=0, pady=0)
         self.setSessionsListBox(labelFrame0)
 
-        labelFrame1 = tk.LabelFrame(top_panel, text="Themes", padx=0, pady=0)
-        self.setThemesListBox(labelFrame1)
+        self.lbl_frame_themes = tk.LabelFrame(top_panel, text="Themes", padx=0, pady=0)
+        self.setThemesListBox(self.lbl_frame_themes)
 
-        labelFrame1.pack(side=tk.LEFT, fill = tk.BOTH, expand="yes")
+        self.lbl_frame_themes.pack(side=tk.LEFT, fill = tk.BOTH, expand="yes")
 
         pBottom = tk.PanedWindow(main_panel, orient=tk.VERTICAL)
         pBottomFont = tk.PanedWindow(pBottom, orient=tk.HORIZONTAL)
@@ -66,8 +67,8 @@ class App:
     def setSessionsListBox(self, label_frame):
         self.session_listbox=tk.Listbox(label_frame)
         self.session_listbox["borderwidth"] = "1px"
-        ft = tkFont.Font(family='Verdana',size=8)
-        self.session_listbox["font"] = ft
+        font_type = tkFont.Font(family='Verdana',size=8)
+        self.session_listbox["font"] = font_type
         self.session_listbox["fg"] = "#333333"
         self.session_listbox.place(x=0,y=0,width=300,height=291)
         self.session_listbox["selectmode"] = "single"
@@ -79,7 +80,13 @@ class App:
         self.session_listbox.bind("<<ListboxSelect>>", self.onSessionSelect)
 
     def setThemesListBox(self, label_frame):
-        self.theme_listbox=tk.Listbox(label_frame)
+        self.inner_theme_frame = tk.LabelFrame(label_frame, padx=0, pady=0, borderwidth = 0, highlightthickness = 0)
+        self.inner_theme_frame.grid(row=0, column=0, sticky = "nesw")
+        label_frame.rowconfigure(0, weight = 20)
+        label_frame.columnconfigure(0, weight = 1)
+        label_frame.rowconfigure(1, weight = 1)
+
+        self.theme_listbox=tk.Listbox(self.inner_theme_frame)
         self.theme_listbox["borderwidth"] = "1px"
         ft = tkFont.Font(family='Verdana',size=8)
         self.theme_listbox["font"] = ft
@@ -89,10 +96,11 @@ class App:
         self.theme_listbox.bind("<Down>", self.onEntryUpDown)
         self.theme_listbox.bind("<Up>", self.onEntryUpDown)
         self.theme_listbox.place(x=0,y=0,width=300,height=291)
-        scrollbar_theme_listbox = tk.Scrollbar(label_frame)
+        scrollbar_theme_listbox = tk.Scrollbar(self.inner_theme_frame)
         self.theme_listbox.config(yscrollcommand = scrollbar_theme_listbox.set, exportselection=False)
         scrollbar_theme_listbox.pack(side = tk.RIGHT, fill = tk.BOTH)
         self.theme_listbox.pack(side = tk.RIGHT, fill = tk.BOTH, expand="yes")
+
 
     def setFontSelectionArea(self, panel):
         self.fontCombo = ttk.Combobox(panel, height=20, state="readonly",
@@ -184,6 +192,12 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
             index = index + 1
         self.session_listbox.pack(side = tk.RIGHT, fill = tk.BOTH, expand="yes")
 
+    def lockThemes(self):
+        self.theme_listbox.configure(state=tk.DISABLED)
+
+    def unlockThemes(self):
+        self.theme_listbox.configure(state=tk.NORMAL)
+
     def loadThemes(self, themes_db = None):
         if not themes_db:
             self.themes_db = Configurator.loadThemes()
@@ -233,10 +247,31 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         else:
             print("No Theme selected")
 
-    def forceUpdateThemesAndSessions(self):
-        themes_db = Configurator.loadThemes(force_download=True)
+    def forceUpdateThemesAndSessionsAfterFinish(self, themes_db):
         self.loadThemes(themes_db)
         self.loadSessions()
+        self.unlockThemes()
+        self.stopDownload()
+
+    def forceUpdateThemesAndSessionsStart(self):
+        self.startDownload()
+        themes_db = Configurator.loadThemes(force_download=True)
+        self.forceUpdateThemesAndSessionsAfterFinish(themes_db)
+
+    def startDownload(self):
+        self.progress_bar=ttk.Progressbar(self.lbl_frame_themes,orient=tk.HORIZONTAL, mode='indeterminate')
+        self.progress_bar.grid(row=1,column=0, sticky = "nesw")
+        self.progress_bar.start()
+
+    def stopDownload(self):
+        self.progress_bar.stop()
+        self.progress_bar.grid_forget()
+
+    def forceUpdateThemesAndSessions(self):
+        self.lockThemes()
+        td = threading.Thread(target=self.forceUpdateThemesAndSessionsStart)
+        td.daemon = True
+        td.start()
 
     def btnDownloadCommand(self):
         self.btn_download.after(1000,self.forceUpdateThemesAndSessions())
