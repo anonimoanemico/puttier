@@ -17,7 +17,15 @@ class Color:
     def toTuple(self):
         return (self.red, self.green, self.blue)
 
-class Theme:
+    @staticmethod
+    def mix(color1, color2):
+        red = int((color1.red+color2.red)/2)
+        green = int((color1.green+color2.green)/2)
+        blue = int((color1.blue+color2.blue)/2)
+        return Color(red, green, blue)
+
+
+class Theme(object):
     DEFAULT_FOREGROUND = 0
     DEFAULT_BOLD_FOREGROUND = 1
     DEFAULT_BACKGROUND = 2
@@ -56,6 +64,10 @@ class Theme:
     def describe(self):
         for c in self.colors:
             print("{} {} {}".format(c.red, c.green, c.blue))
+
+    def describeHex(self):
+        for c in self.colors:
+            print("0x{:02x}{:02x}{:02x}".format(c.red, c.green, c.blue))
 
     def toHash(self):
         p = pickle.dumps(self.colors, -1)

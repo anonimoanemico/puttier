@@ -1,5 +1,5 @@
 # puttier
-Change colors to putty sessions.
+Change colors to putty sessions or export a theme to the clipboard in json for Visual Studio Code.
 
 It is possible to use the command line tool, example:
 
@@ -12,7 +12,7 @@ or the GUI:
 ```sh
 py.exe -m puttier
 ```
-
+put
 Below a screenshot of the UI
 
 ![Alt text](example.png?raw=true "Example")
@@ -39,7 +39,7 @@ py -m build
 Using pip3 or another pip version
 
 ```sh
-py -m pip .\dist\puttier-0.0.2-py3-none-any.whl
+py -m pip install .\dist\puttier-0.0.3-py3-none-any.whl
 ```
 
 ## Run

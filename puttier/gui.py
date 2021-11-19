@@ -7,6 +7,7 @@ from tkinter import font
 from puttier.configurator import *
 import threading
 import puttier.definitions as appconfig
+from puttier.vstermtheme import VsTermTheme
 class App:
 
     def __init__(self):
@@ -16,7 +17,7 @@ class App:
         #setting title
         self.root.title("Puttier")
         #setting window size
-        max_width = 800
+        max_width = 1024
         width = max_width
         height = 615
         screenwidth = self.root.winfo_screenwidth()
@@ -25,10 +26,10 @@ class App:
         self.root.geometry(alignstr)
         self.root.resizable(width=True, height=True)
 
-        main_panel = tk.PanedWindow(self.root, orient=tk.VERTICAL)
-        main_panel.pack(side=tk.TOP, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
+        pMain = tk.PanedWindow(self.root, orient=tk.VERTICAL)
+        pMain.pack(side=tk.LEFT, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
 
-        top_panel = tk.PanedWindow(main_panel, orient=tk.HORIZONTAL)
+        top_panel = tk.PanedWindow(pMain, orient=tk.HORIZONTAL)
         top_panel.pack(side=tk.TOP, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
 
         labelFrame0 = tk.LabelFrame(top_panel, text="Sessions", padx=0, pady=0)
@@ -39,7 +40,7 @@ class App:
 
         self.lbl_frame_themes.pack(side=tk.LEFT, fill = tk.BOTH, expand="yes")
 
-        pBottom = tk.PanedWindow(main_panel, orient=tk.VERTICAL)
+        pBottom = tk.PanedWindow(pMain, orient=tk.VERTICAL)
         pBottomFont = tk.PanedWindow(pBottom, orient=tk.HORIZONTAL)
 
         self.font_families = [ f for f in font.families() if tkFont.Font(family=f).metrics()["fixed"] == 1 ]
@@ -121,6 +122,9 @@ class App:
         self.fontSizeCombo.pack(side=tk.LEFT, fill=tk.BOTH, pady=0, padx=0)
         self.fontSizeCombo.bind("<<ComboboxSelected>>", self.onSelectFontSize)
 
+    def updateVsCodeExport(self):
+        self.btn_copy_vs_json["state"] = tk.NORMAL
+
     def setTextArea(self, panel):
         self.text_area = tk.Text(panel, height=160, width=120)
         ft = tkFont.Font(family='Consolas',size=8)
@@ -156,7 +160,6 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         ft = tkFont.Font(family='Verdana',size=8)
         self.btn_load["font"] = ft
         self.btn_load["fg"] = "#000000"
-        # self.btn_load["justify"] = "center"
         self.btn_load["text"] = "Load"
         self.btn_load.place(x=0,y=0,width=100,height=25)
         self.btn_load["command"] = self.btnLoadCommand
@@ -166,7 +169,6 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         ft = tkFont.Font(family='Verdana',size=8)
         btn_update["font"] = ft
         btn_update["fg"] = "#000000"
-        # btn_update["justify"] = "center"
         btn_update["text"] = "Update"
         btn_update.place(x=110,y=0,width=120,height=25)
         btn_update["command"] = self.btnUpdateCommand
@@ -176,11 +178,20 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         ft = tkFont.Font(family='Verdana',size=8)
         self.btn_download["font"] = ft
         self.btn_download["fg"] = "#000000"
-        # self.btn_download["justify"] = "center"
         self.btn_download["text"] = "Download Themes"
         self.btn_download.place(x=240,y=0,width=130,height=25)
         self.btn_download["command"] = self.btnDownloadCommand
         self.btn_download["state"] = tk.DISABLED
+
+        self.btn_copy_vs_json=tk.Button(panel)
+        self.btn_copy_vs_json["bg"] = "#efefef"
+        ft = tkFont.Font(family='Verdana',size=8)
+        self.btn_copy_vs_json["font"] = ft
+        self.btn_copy_vs_json["fg"] = "#000000"
+        self.btn_copy_vs_json["text"] = "Copy VSCode Json"
+        self.btn_copy_vs_json.place(x=380,y=0,width=130,height=25)
+        self.btn_copy_vs_json["command"] = self.btnCopyCommand
+        self.btn_copy_vs_json["state"] = tk.DISABLED
 
     def loadSessions(self):
         self.sessions_db = Configurator.loadSessions(themes_db=self.themes_db)
@@ -218,14 +229,14 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
     def getSelectedSession(self):
         selected_session_idx = None if not self.session_listbox.curselection() else self.session_listbox.curselection()[0]
         session_instance = None
-        if (selected_session_idx is not None and self.sessions_db):
+        if selected_session_idx is not None and self.sessions_db:
             session_instance = (list(self.sessions_db.keys())[selected_session_idx])
         return session_instance
 
     def getSelectedTheme(self):
         theme_instance = None
         selected_theme_idx = None if not self.theme_listbox.curselection() else self.theme_listbox.curselection()[0]
-        if (selected_theme_idx is not None):
+        if selected_theme_idx is not None:
             theme_instance = (list(self.themes_db.values())[selected_theme_idx])
         return theme_instance
 
@@ -276,8 +287,16 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
     def btnDownloadCommand(self):
         self.btn_download.after(1000,self.forceUpdateThemesAndSessions())
 
-    def btnRunPutty(self):
-        pass
+    def btnCopyCommand(self):
+        theme_instance = self.getSelectedTheme()
+        if theme_instance is None:
+            return
+        vstheme = VsTermTheme(theme_instance)
+        font_family = self.fontCombo.get()
+        font_size = self.fontSizeCombo.get()
+        json = vstheme.export(font_family, font_size)
+        self.root.clipboard_clear()
+        self.root.clipboard_append(json)
 
     def onEntryUpDown(self, event):
         selection = event.widget.curselection()[0]
@@ -316,7 +335,7 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         ft = tkFont.Font(family=self.fontCombo.get(), size=self.fontSizeCombo.get())
         self.text_area["font"] = ft
 
-        if not theme_instance:
+        if theme_instance is None:
             return
         self.text_area["bg"] = theme_instance.getColorHex(Theme.DEFAULT_BACKGROUND)
         self.text_area["fg"] = theme_instance.getColorHex(Theme.DEFAULT_FOREGROUND)
@@ -344,6 +363,7 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         self.text_area.tag_config("dp", foreground=theme_instance.getColorHex(Theme.ANSI_BLUE), background=theme_instance.getColorHex(Theme.ANSI_GREEN))
         self.text_area.tag_config("ar", foreground=theme_instance.getColorHex(Theme.ANSI_RED_BOLD))
         self.text_area.tag_config("ex", foreground=theme_instance.getColorHex(Theme.ANSI_GREEN_BOLD))
+        self.updateVsCodeExport()
 
     def onSelectFontFamily(self, evt):
         self.onThemeSelect(evt)
