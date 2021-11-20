@@ -39,7 +39,7 @@ py -m build
 Using pip3 or another pip version
 
 ```sh
-py -m pip install .\dist\puttier-0.0.3-py3-none-any.whl
+py -m pip install .\dist\puttier-0.0.4-py3-none-any.whl
 ```
 
 ## Run

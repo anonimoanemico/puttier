@@ -17,9 +17,9 @@ class App:
         #setting title
         self.root.title("Puttier")
         #setting window size
-        max_width = 1024
+        max_width = 800
         width = max_width
-        height = 615
+        height = 620
         screenwidth = self.root.winfo_screenwidth()
         screenheight = self.root.winfo_screenheight()
         alignstr = '%dx%d+%d+%d' % (width, height, (screenwidth - width) / 2, (screenheight - height) / 2)
@@ -28,6 +28,7 @@ class App:
 
         pMain = tk.PanedWindow(self.root, orient=tk.VERTICAL)
         pMain.pack(side=tk.LEFT, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
+        self.setStatusBar(pMain)
 
         top_panel = tk.PanedWindow(pMain, orient=tk.HORIZONTAL)
         top_panel.pack(side=tk.TOP, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
@@ -125,6 +126,14 @@ class App:
     def updateVsCodeExport(self):
         self.btn_copy_vs_json["state"] = tk.NORMAL
 
+    def setStatusBar(self, panel):
+        self.statusMsg = tk.StringVar()
+        self.statusBar = tk.Label(panel, textvariable=self.statusMsg, bd=1, relief=tk.SUNKEN, anchor=tk.W)
+        self.statusBar.pack(side=tk.BOTTOM, fill=tk.X)
+
+    def setStatusMessage(self, message):
+        self.statusMsg.set(message)
+
     def setTextArea(self, panel):
         self.text_area = tk.Text(panel, height=160, width=120)
         ft = tkFont.Font(family='Consolas',size=8)
@@ -220,6 +229,7 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
             self.theme_listbox.insert(index, theme.name)
             index = index + 1
         self.theme_listbox.pack(side = tk.RIGHT, fill = tk.BOTH, expand="yes")
+        self.setStatusMessage("Loaded {} themes".format(len(self.themes_db)))
 
     def btnLoadCommand(self):
         self.loadThemes()
@@ -253,10 +263,11 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
             # reselect previously selected session
             self.session_listbox.select_set(selected_session_idx)
             self.session_listbox.see(selected_session_idx)
+            self.setStatusMessage("Theme {} saved for session {}" .format(theme_instance.name, session_name))
         elif not session_name:
-            print("No Session selected")
+            self.setStatusMessage("No Session selected")
         else:
-            print("No Theme selected")
+            self.setStatusMessage("No Theme selected")
 
     def forceUpdateThemesAndSessionsAfterFinish(self, themes_db):
         self.loadThemes(themes_db)
@@ -290,6 +301,7 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
     def btnCopyCommand(self):
         theme_instance = self.getSelectedTheme()
         if theme_instance is None:
+            self.setStatusMessage("No theme selected")
             return
         vstheme = VsTermTheme(theme_instance)
         font_family = self.fontCombo.get()
@@ -297,6 +309,7 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         json = vstheme.export(font_family, font_size)
         self.root.clipboard_clear()
         self.root.clipboard_append(json)
+        self.setStatusMessage("Json of theme {} is now in the clipboard".format(theme_instance.name))
 
     def onEntryUpDown(self, event):
         selection = event.widget.curselection()[0]

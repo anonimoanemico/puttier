@@ -1,0 +1,3 @@
+include *.txt,*.ini
+recursive-include puttier/cfg *
+recursive-include examples *.txt *.py
