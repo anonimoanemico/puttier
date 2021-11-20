@@ -8,6 +8,7 @@ from puttier.themerepo import Themerepo
 from puttier.themeloader import *
 from puttier.puttysessions import *
 
+
 class Configurator:
 
     @staticmethod
@@ -19,8 +20,9 @@ class Configurator:
         return themes_db
 
     @staticmethod
-    def loadSessions(themes_db = None):
-        putty_sessions = sorted(list(PuttyLoader.sessions()), key=cmp_to_key(PuttySession.compare))
+    def loadSessions(themes_db=None):
+        putty_sessions = sorted(
+            list(PuttyLoader.sessions()), key=cmp_to_key(PuttySession.compare))
         sessions_dict = OrderedDict()
         for index, s in enumerate(putty_sessions):
             known_theme = None
@@ -43,7 +45,9 @@ class Configurator:
             name = section
             url = config.get(section, "url")
             is_zip = True if url.endswith(".zip") else False
-            search_path = None if not is_zip else config.get(section, "search_path")
+            search_path = None if not is_zip else config.get(
+                section, "search_path")
             credits_url = config.get(section, "credits")
-            themes_repo.append(Themerepo(name, url, is_zip, search_path, credits_url))
+            themes_repo.append(
+                Themerepo(name, url, is_zip, search_path, credits_url))
         return themes_repo

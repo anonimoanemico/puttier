@@ -1,29 +1,38 @@
 # -*- coding: utf-8 -*-
 
-from puttier.theme import Theme,Color
+from puttier.theme import Theme, Color
+
 
 class VsTermTheme(Theme):
     fontSizeOffset = 5
+
     def __init__(self, superclass):
         super().__init__(superclass.name)
         self.colors = superclass.colors
 
-    def toJson(self, fontName = None, fontSize = None):
+    def toJson(self, fontName=None, fontSize=None):
         json = """"workbench.colorCustomizations": {\n"""
-        labels = {key: value for (key,value) in VsTermTheme.labels.items() if value}
-        for num,label in labels.items():
+        labels = {key: value for (key, value)
+                  in VsTermTheme.labels.items() if value}
+        for num, label in labels.items():
             c = self.colors[num]
-            json = json + "   \"{}\": \"#{:02x}{:02x}{:02x}\",\n".format(label,c.red,c.green,c.blue)
+            json = json + \
+                "   \"{}\": \"#{:02x}{:02x}{:02x}\",\n".format(
+                    label, c.red, c.green, c.blue)
 
-        selection = Color.mix(self.colors[Theme.DEFAULT_BACKGROUND], self.colors[Theme.CURSOR_COLOR])
-        json = json + "   \"terminal.selectionBackground\": \"#{:02x}{:02x}{:02x}\"\n".format(selection.red, selection.green, selection.blue)
+        selection = Color.mix(
+            self.colors[Theme.DEFAULT_BACKGROUND], self.colors[Theme.CURSOR_COLOR])
+        json = json + "   \"terminal.selectionBackground\": \"#{:02x}{:02x}{:02x}\"\n".format(
+            selection.red, selection.green, selection.blue)
         json = json + "}"
         if fontName:
             json = json + ",\n"
-            json = json + "\"terminal.integrated.fontFamily\": \"{}\"".format(fontName)
+            json = json + \
+                "\"terminal.integrated.fontFamily\": \"{}\"".format(fontName)
         if fontSize:
             json = json + ",\n"
-            json = json + "\"terminal.integrated.fontSize\": {}\n".format(int(fontSize)+VsTermTheme.fontSizeOffset)
+            json = json + "\"terminal.integrated.fontSize\": {}\n".format(
+                int(fontSize)+VsTermTheme.fontSizeOffset)
         return json
 
     def export(self, fontName, fontSize):
@@ -31,7 +40,6 @@ class VsTermTheme(Theme):
 
     def describe(self):
         print(self.toJson())
-
 
     labels = dict()
     labels[Theme.DEFAULT_FOREGROUND] = "terminal.foreground"

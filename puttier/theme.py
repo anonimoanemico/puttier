@@ -2,6 +2,7 @@
 
 import pickle
 
+
 class Color:
     def __init__(self, red, green, blue):
         self.red = int(red)
@@ -76,7 +77,8 @@ class Theme(object):
     def getColorHexByIndex(self, index):
         if len(self.colors) != 22 or index > 21 or index < 0:
             return None
-        color_hex_str = "".join('{:02x}'.format(a) for a in self.colors[index].toTuple())
+        color_hex_str = "".join('{:02x}'.format(a)
+                                for a in self.colors[index].toTuple())
         return "#{}".format(color_hex_str)
 
     def getColorHex(self, color_index):
@@ -88,26 +90,26 @@ class Theme(object):
     @staticmethod
     def default():
         theme = Theme("Default")
-        theme.addColorValues(187,187,187)
-        theme.addColorValues(255,255,255)
-        theme.addColorValues(0,0,0)
-        theme.addColorValues(85,85,85)
-        theme.addColorValues(0,0,0)
-        theme.addColorValues(0,255,0)
-        theme.addColorValues(0,0,0)
-        theme.addColorValues(85,85,85)
-        theme.addColorValues(187,0,0)
-        theme.addColorValues(255,85,85)
-        theme.addColorValues(0,187,0)
-        theme.addColorValues(85,255,85)
-        theme.addColorValues(187,187,0)
-        theme.addColorValues(255,255,85)
-        theme.addColorValues(0,0,187)
-        theme.addColorValues(85,85,255)
-        theme.addColorValues(187,0,187)
-        theme.addColorValues(255,85,255)
-        theme.addColorValues(0,187,187)
-        theme.addColorValues(85,255,255)
-        theme.addColorValues(187,187,187)
-        theme.addColorValues(255,255,255)
+        theme.addColorValues(187, 187, 187)
+        theme.addColorValues(255, 255, 255)
+        theme.addColorValues(0, 0, 0)
+        theme.addColorValues(85, 85, 85)
+        theme.addColorValues(0, 0, 0)
+        theme.addColorValues(0, 255, 0)
+        theme.addColorValues(0, 0, 0)
+        theme.addColorValues(85, 85, 85)
+        theme.addColorValues(187, 0, 0)
+        theme.addColorValues(255, 85, 85)
+        theme.addColorValues(0, 187, 0)
+        theme.addColorValues(85, 255, 85)
+        theme.addColorValues(187, 187, 0)
+        theme.addColorValues(255, 255, 85)
+        theme.addColorValues(0, 0, 187)
+        theme.addColorValues(85, 85, 255)
+        theme.addColorValues(187, 0, 187)
+        theme.addColorValues(255, 85, 255)
+        theme.addColorValues(0, 187, 187)
+        theme.addColorValues(85, 255, 255)
+        theme.addColorValues(187, 187, 187)
+        theme.addColorValues(255, 255, 255)
         return theme
