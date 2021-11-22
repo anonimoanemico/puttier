@@ -21,7 +21,7 @@ class App:
         #setting window size
         max_width = 800
         width = max_width
-        height = 620
+        height = 630
         screenwidth = self.root.winfo_screenwidth()
         screenheight = self.root.winfo_screenheight()
         alignstr = '%dx%d+%d+%d' % (width, height,
@@ -30,8 +30,14 @@ class App:
         self.root.resizable(width=True, height=True)
 
         pMain = tk.PanedWindow(self.root, orient=tk.VERTICAL)
-        pMain.pack(side=tk.LEFT, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
-        self.setStatusBar(pMain)
+        pMain.pack(side=tk.BOTTOM, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
+
+        self.f_status = tk.PanedWindow(
+            pMain, orient=tk.HORIZONTAL, bd=1, relief=tk.SUNKEN, height=10)
+        self.f_status.pack(side=tk.BOTTOM, expand=tk.N,
+                           fill=tk.X, pady=0, padx=0)
+
+        self.setStatusBar(self.f_status)
 
         top_panel = tk.PanedWindow(pMain, orient=tk.HORIZONTAL)
         top_panel.pack(side=tk.TOP, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
@@ -43,10 +49,13 @@ class App:
             top_panel, text="Themes", padx=0, pady=0)
         self.setThemesListBox(self.lbl_frame_themes)
 
-        self.lbl_frame_themes.pack(side=tk.LEFT, fill=tk.BOTH, expand="yes")
+        self.lbl_frame_themes.pack(side=tk.LEFT, fill=tk.BOTH, expand=tk.Y)
 
         pBottom = tk.PanedWindow(pMain, orient=tk.VERTICAL)
+        pBottom.pack(side=tk.BOTTOM, expand=tk.Y, fill=tk.BOTH, pady=0, padx=0)
         pBottomFont = tk.PanedWindow(pBottom, orient=tk.HORIZONTAL)
+        pBottomFont.pack(side=tk.TOP, expand=tk.N,
+                         fill=tk.BOTH, pady=0, padx=0)
 
         self.font_families = [f for f in font.families(
         ) if tkFont.Font(family=f).metrics()["fixed"] == 1]
@@ -54,15 +63,12 @@ class App:
 
         self.setFontSelectionArea(pBottomFont)
 
-        pBottomFont.pack(side=tk.TOP, expand=tk.N,
-                         fill=tk.BOTH, pady=5, padx=0)
-
         pBottomBottom = tk.PanedWindow(pBottom, orient=tk.HORIZONTAL)
         pBottomBottom.pack(side=tk.TOP, expand=tk.Y,
-                           fill=tk.BOTH, pady=5, padx=0)
+                           fill=tk.BOTH, pady=0, padx=0)
 
         pBottomTerminal = tk.PanedWindow(
-            pBottomBottom, orient=tk.VERTICAL, height=225)
+            pBottomBottom, orient=tk.VERTICAL, height=230)
         self.setTextArea(pBottomTerminal)
         pBottomTerminal.pack(side=tk.TOP, expand=tk.Y,
                              fill=tk.BOTH, pady=0, padx=0)
@@ -71,8 +77,7 @@ class App:
 
         self.setBottomButtons(pBottomButtons)
         pBottomButtons.pack(side=tk.BOTTOM, expand=tk.Y,
-                            fill=tk.BOTH, pady=5, padx=0)
-        pBottom.pack(side=tk.BOTTOM, expand=tk.Y, fill=tk.BOTH, pady=5, padx=0)
+                            fill=tk.BOTH, pady=0, padx=0)
 
         self.root.mainloop()
 
@@ -82,23 +87,22 @@ class App:
         font_type = tkFont.Font(family='Verdana', size=8)
         self.session_listbox["font"] = font_type
         self.session_listbox["fg"] = "#333333"
-        self.session_listbox.place(x=0, y=0, width=300, height=291)
         self.session_listbox["selectmode"] = "single"
         scrollbar_GListBox_0 = tk.Scrollbar(label_frame)
         self.session_listbox.config(
             yscrollcommand=scrollbar_GListBox_0.set, exportselection=False)
         scrollbar_GListBox_0.pack(side=tk.RIGHT, fill=tk.BOTH)
-        self.session_listbox.pack(side=tk.RIGHT, fill=tk.BOTH, expand="yes")
-        label_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand="yes")
+        self.session_listbox.pack(side=tk.RIGHT, fill=tk.BOTH, expand=tk.Y)
+        label_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=tk.Y)
         self.session_listbox.bind("<<ListboxSelect>>", self.onSessionSelect)
 
     def setThemesListBox(self, label_frame):
         self.inner_theme_frame = tk.LabelFrame(
             label_frame, padx=0, pady=0, borderwidth=0, highlightthickness=0)
         self.inner_theme_frame.grid(row=0, column=0, sticky="nesw")
-        label_frame.rowconfigure(0, weight=20)
+        label_frame.rowconfigure(0, weight=30)
+        label_frame.rowconfigure(1, weight=2)
         label_frame.columnconfigure(0, weight=1)
-        label_frame.rowconfigure(1, weight=1)
 
         self.theme_listbox = tk.Listbox(self.inner_theme_frame)
         self.theme_listbox["borderwidth"] = "1px"
@@ -109,7 +113,7 @@ class App:
         self.theme_listbox.bind("<<ListboxSelect>>", self.onThemeSelect)
         self.theme_listbox.bind("<Down>", self.onEntryUpDown)
         self.theme_listbox.bind("<Up>", self.onEntryUpDown)
-        self.theme_listbox.place(x=0, y=0, width=300, height=291)
+        self.theme_listbox.place(x=0, y=0)
         scrollbar_theme_listbox = tk.Scrollbar(self.inner_theme_frame)
         self.theme_listbox.config(
             yscrollcommand=scrollbar_theme_listbox.set, exportselection=False)
@@ -141,9 +145,15 @@ class App:
 
     def setStatusBar(self, panel):
         self.statusMsg = tk.StringVar()
+        self.setStatusMessage("Ready")
         self.statusBar = tk.Label(
-            panel, textvariable=self.statusMsg, bd=1, relief=tk.SUNKEN, anchor=tk.W)
-        self.statusBar.pack(side=tk.BOTTOM, fill=tk.X)
+            panel, textvariable=self.statusMsg, anchor=tk.W)
+        self.statusBar.pack(side=tk.LEFT, fill=tk.X)
+
+    def setProgressBar(self, panel):
+        self.progress_bar = ttk.Progressbar(
+            panel, orient=tk.HORIZONTAL, mode='indeterminate', value=0)
+        self.progress_bar.pack(side=tk.RIGHT, fill=tk.X)
 
     def setStatusMessage(self, message):
         self.statusMsg.set(message)
@@ -304,14 +314,14 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
         self.forceUpdateThemesAndSessionsAfterFinish(themes_db)
 
     def startDownload(self):
-        self.progress_bar = ttk.Progressbar(
-            self.lbl_frame_themes, orient=tk.HORIZONTAL, mode='indeterminate')
-        self.progress_bar.grid(row=1, column=0, sticky="nesw")
+        self.setStatusMessage("Downloading themes defined in Theme.ini")
+        self.setProgressBar(self.f_status)
         self.progress_bar.start()
 
     def stopDownload(self):
         self.progress_bar.stop()
-        self.progress_bar.grid_forget()
+        self.progress_bar.pack_forget()
+        self.setStatusMessage("Download finished")
 
     def forceUpdateThemesAndSessions(self):
         self.lockThemes()
