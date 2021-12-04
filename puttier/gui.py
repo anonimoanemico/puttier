@@ -303,10 +303,11 @@ drwxrwxrwx  3 user user    4096 Dec 14  2016 public
             self.setStatusMessage("No Theme selected")
 
     def forceUpdateThemesAndSessionsAfterFinish(self, themes_db):
-        self.loadThemes(themes_db)
         self.loadSessions()
         self.unlockThemes()
         self.stopDownload()
+        self.loadThemes(themes_db)
+
 
     def forceUpdateThemesAndSessionsStart(self):
         self.startDownload()
