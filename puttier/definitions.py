@@ -17,4 +17,5 @@ class DescribeProject:
         print("DATA_DIR={}".format(Project.DATA_DIR))
         print("THEMES_INI_PATH={}".format(Project.THEMES_INI_PATH))
 
-    describe()
+
+DescribeProject.describe()
