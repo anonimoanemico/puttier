@@ -1,9 +1,5 @@
 # puttier
 Change colors to putty sessions or export a theme to the clipboard in json for Visual Studio Code.
-
-# Download last release
-https://github.com/anonimoanemico/puttier/archive/refs/tags/v.1.0.0.zip
-
 # Description
 It is possible to use the command line tool, example:
 
@@ -22,6 +18,13 @@ Below a screenshot of the UI
 ![Alt text](example.png?raw=true "Example")
 
  Note: the terminal displayed in the UI is a reproduction.
+
+# Quick how to
+Donwload release 1.0 from https://github.com/anonimoanemico/puttier/archive/refs/tags/v.1.0.0.zip
+Unzip in a folder
+Select file name ```gui.py```
+Right click to ```open with Python3```
+![image](https://github.com/anonimoanemico/puttier/assets/19540260/bb3b4213-7eac-44cb-9fea-f53daa937244)
 
 # Build and install
 Otherwise you can build the egg package and run the executable, with the following steps:
