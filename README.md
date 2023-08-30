@@ -1,6 +1,10 @@
 # puttier
 Change colors to putty sessions or export a theme to the clipboard in json for Visual Studio Code.
 
+# Download last release
+https://github.com/anonimoanemico/puttier/archive/refs/tags/v.1.0.0.zip
+
+# Description
 It is possible to use the command line tool, example:
 
 ```sh
